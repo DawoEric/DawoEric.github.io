@@ -5,15 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>隨機歌曲選擇器</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-    #songList { list-style-type: none; padding: 0; }
-    li { margin: 5px 0; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    /* 表格置中，並隱藏邊框 */
+    #songTable {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 600px;
+    }
+    #songTable td {
+      padding: 8px;
+      border: none;
+      text-align: left;
+    }
+    /* 褜製按鈕樣式 */
+    button.copy-btn {
+      padding: 3px 8px;
+      font-size: 0.9em;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <h1>隨機歌曲選擇器</h1>
   <button onclick="pickRandomSongs()">隨機選擇 10 首歌曲</button>
-  <ul id="songList"></ul>
+  <table id="songTable"></table>
 
   <script>
     const songs = [
@@ -819,14 +839,43 @@
         alert("歌單尚未載入！");
         return;
       }
-      // 複製陣列並使用 Fisher-Yates 洗牌法
+      // 褂製陣列並使用 Fisher-Yates 洗牌法
       let shuffled = songs.slice();
       for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       const selectedSongs = shuffled.slice(0, 10);
-      document.getElementById("songList").innerHTML = selectedSongs.map(song => `<li>${song}</li>`).join("");
+      let tableHTML = "<tbody>";
+      selectedSongs.forEach(song => {
+        tableHTML += `<tr>
+          <td>${song}</td>
+          <td style="text-align: right;">
+            <button class="copy-btn" onclick="copySong('${song}', this)">複製</button>
+          </td>
+        </tr>`;
+      });
+      tableHTML += "</tbody>";
+      document.getElementById("songTable").innerHTML = tableHTML;
+    }
+
+    function copySong(song, btn) {
+      navigator.clipboard.writeText(song)
+        .then(() => {
+          const originalText = btn.innerText;
+          btn.innerText = "已複製";
+          setTimeout(() => {
+            btn.innerText = originalText;
+          }, 2000);
+        })
+        .catch(err => {
+          console.error("複製失敗:", err);
+          const originalText = btn.innerText;
+          btn.innerText = "複製失敗";
+          setTimeout(() => {
+            btn.innerText = originalText;
+          }, 2000);
+        });
     }
   </script>
 </body>
