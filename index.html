@@ -5,35 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>隨機歌曲選擇器</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 20px;
-    }
-    /* 表格置中，並隱藏邊框 */
-    #songTable {
-      margin: 20px auto;
-      border-collapse: collapse;
-      width: 90%;
-      max-width: 600px;
-    }
-    #songTable td {
-      padding: 8px;
-      border: none;
-      text-align: left;
-    }
-    /* 複製按鈕樣式 */
-    button.copy-btn {
-      padding: 3px 8px;
-      font-size: 0.9em;
-      cursor: pointer;
-    }
+    body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+    #songList { list-style-type: none; padding: 0; }
+    li { margin: 5px 0; }
   </style>
 </head>
 <body>
   <h1>隨機歌曲選擇器</h1>
   <button onclick="pickRandomSongs()">隨機選擇 10 首歌曲</button>
-  <table id="songTable"></table>
+  <ul id="songList"></ul>
 
   <script>
     const songs = [
@@ -846,52 +826,7 @@
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
       const selectedSongs = shuffled.slice(0, 10);
-      let tableHTML = "<tbody>";
-      selectedSongs.forEach(song => {
-        tableHTML += `<tr>
-          <td>${song}</td>
-          <td style="text-align: right;"><button class="copy-btn" onclick="copySong(${JSON.stringify(song)}, this)">複製</button></td>
-        </tr>`;
-      });
-      tableHTML += "</tbody>";
-      document.getElementById("songTable").innerHTML = tableHTML;
-    }
-
-    function copySong(song, btn) {
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(song).then(() => {
-          const original = btn.innerText;
-          btn.innerText = "已複製";
-          setTimeout(() => { btn.innerText = original; }, 2000);
-        }).catch(err => {
-          console.error("複製失敗:", err);
-        });
-      } else {
-        let textArea = document.createElement("textarea");
-        textArea.value = song;
-        textArea.style.position = "fixed";
-        textArea.style.top = 0;
-        textArea.style.left = 0;
-        textArea.style.width = "2em";
-        textArea.style.height = "2em";
-        textArea.style.padding = 0;
-        textArea.style.border = "none";
-        textArea.style.outline = "none";
-        textArea.style.boxShadow = "none";
-        textArea.style.background = "transparent";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-          const successful = document.execCommand('copy');
-          const original = btn.innerText;
-          btn.innerText = successful ? "已複製" : "複製失敗";
-          setTimeout(() => { btn.innerText = original; }, 2000);
-        } catch (err) {
-          console.error("複製失敗", err);
-        }
-        document.body.removeChild(textArea);
-      }
+      document.getElementById("songList").innerHTML = selectedSongs.map(song => `<li>${song}</li>`).join("");
     }
   </script>
 </body>
