@@ -1,15 +1,43 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <!-- 保持 head 部分不變 -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>稀音歌單隨機挑</title>
+  <style>
+    /* 原有樣式保持不變 */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #songTable {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 600px;
+    }
+    #songTable td {
+      padding: 8px;
+      border: none;
+      text-align: left;
+    }
+    button.copy-btn {
+      padding: 3px 8px;
+      font-size: 0.9em;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <!-- 保持 body 結構不變 -->
+  <h1>稀音歌單隨機挑</h1>
+  <button onclick="pickRandomSongs()">隨機選擇 10 首歌曲</button>
+  <table id="songTable"></table>
 
   <script>
-    let songs = [];
+    let songs = []; // 初始化空歌單
 
-    // 保持載入歌單程式碼不變
+    // 頁面載入時讀取歌單文件
     window.addEventListener('DOMContentLoaded', async () => {
       try {
         const response = await fetch('list.txt');
@@ -17,8 +45,8 @@
         
         const text = await response.text();
         songs = text.split('\n')
-          .map(line => line.trim())
-          .filter(line => line);
+          .map(line => line.trim())  // 去除空白
+          .filter(line => line);    // 過濾空行
 
         if (songs.length === 0) {
           alert('警告: 歌單文件為空或格式不正確！');
@@ -34,36 +62,30 @@
         alert("歌單尚未載入或內容為空！");
         return;
       }
-
+      
+      // Fisher-Yates 洗牌法
       let shuffled = [...songs];
       for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
-
+      
       const selectedSongs = shuffled.slice(0, 10);
       const tableHTML = `<tbody>${
-        selectedSongs.map(song => {
-          // 新增歌名分割處理
-          const songName = song.split(' (')[0].trim(); // 分割歌名與演唱者
-          const escapedSongName = songName.replace(/'/g, "\\'"); // 處理單引號
-          
-          return `
-            <tr>
-              <td>${song}</td>
-              <td style="text-align: right;">
-                <button class="copy-btn" onclick="copySong('${escapedSongName}', this)">
-                  複製
-                </button>
-              </td>
-            </tr>`;
-        }).join('')
+        selectedSongs.map(song => `
+          <tr>
+            <td>${song}</td>
+            <td style="text-align: right;">
+              <button class="copy-btn" onclick="copySong('${song.replace(/'/g, "\\'")}', this)">複製</button>
+            </td>
+          </tr>`
+        ).join('')
       }</tbody>`;
       
       document.getElementById("songTable").innerHTML = tableHTML;
     }
 
-    // 保持複製函數不變
+    // 保持原有 copySong 函數不變
     function copySong(song, btn) {
       navigator.clipboard.writeText(song)
         .then(() => {
